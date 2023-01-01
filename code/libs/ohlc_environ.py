@@ -44,7 +44,6 @@ class BitcoinEnv(gym.Env):
         self.legal_actions = get_legal_actions(self.current_position)
         self.ensemble = ensemble
         self.actions = []
-        self.alpha = 0
         if is_buff_emp == False:
             end_index = int(len(self.dataset) * (1 - self.threshold))
         else:
@@ -137,10 +136,9 @@ class BitcoinEnv(gym.Env):
         next_state = [self.ohlc, None, self.gain, self.current_position, self.fund_rate]
         return next_state, self.reward, done, info
 
-    def set_ensemble(self, actions, alpha, ensemble=True):
+    def set_ensemble(self, actions, ensemble=True):
         self.actions = actions
         self.ensemble = ensemble    
-        self.alpha = alpha
 
     def _get_observation(self):
         return self.dataset[self.current_step]

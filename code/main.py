@@ -7,7 +7,7 @@ import argparse
 import sys
 import signal
 
-import trader as candle_trader
+import candle_trader
 import ohlc_trader
 import libs.data as image_data
 import libs.ohlc_data as ohlc_data

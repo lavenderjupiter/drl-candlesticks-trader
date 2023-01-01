@@ -254,7 +254,7 @@ class ActorPPO(nn.Module):
         else:
             out = torch.cat([x, current_account], 1)
 
-        if self.continuous: # legal_actions not applied
+        if self.continuous: # legal_actions masking is not applied
             mu = self.actor(out)
             std = self.log_std.exp().expand_as(mu)
             dist = Normal(mu, std)

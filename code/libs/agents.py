@@ -54,7 +54,7 @@ class DQN:
             account_feats = utilities.get_account_features(state, self.acc_feats, self.init_balance)
             account_t = torch.tensor(account_feats).unsqueeze(0).to(self.device)
             action_value_t = self.eval_net(image_t, account_t) 
-            action_value_t[action_mask == 0] = -9999999 # set q value of illegal action to a large minus number
+            action_value_t[action_mask == 0] = -9999999 # set q value of illegal action to a large negative number
             _, action_t = torch.max(action_value_t, dim=1)
             action = int(action_t.item())
         
@@ -94,7 +94,7 @@ class DQN:
         done_mask = torch.BoolTensor(dones).to(self.device)
 
         state_action_values = self.eval_net(images_t, accounts_t).gather(1, actions_t.unsqueeze(-1)).squeeze(-1)
-        if self._double: # legal_actions not applied
+        if self._double: # legal_actions masking is not applied
             next_state_actions = self.eval_net(next_images_t, next_accounts_t).max(1)[1]
             next_action_values = self.target_net(next_images_t, next_accounts_t).gather(1, next_state_actions.unsqueeze(-1)).squeeze(-1)
         else:

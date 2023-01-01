@@ -52,7 +52,6 @@ class BitcoinEnv(gym.Env):
         self.legal_actions = get_legal_actions(self.current_position)
         self.ensemble = ensemble
         self.actions = []
-        self.alpha = 0
         if is_buff_emp == False:
             end_index = int(len(self.dataset) * (1 - self.threshold))
         else:

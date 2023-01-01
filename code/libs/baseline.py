@@ -15,6 +15,8 @@ class Baseline:
         self.width = 224
 
     def randomized_policy(self, test_set):
+        seed = np.random.randint(0, high=100)
+        np.random.seed(seed)
         timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
         filename = self.result_path + 'rp_tc_' + str(self.commision_percent * 100) + '@' + timestamp + '.csv'
         date_times, actions, profits = [], [], []
@@ -22,7 +24,7 @@ class Baseline:
 
         env = environ.BitcoinEnv(test_set, image_shape=(self.channels, self.height, self.width), balance=self.init_account_balance,
                                 threshold=1, commission_perc=self.commision_percent)
-        state = env.reset()
+        _ = env.reset()
         c = collections.Counter()
         current_step = 0
 
@@ -32,10 +34,10 @@ class Baseline:
             current_step += 1
             print('\rcurrent step: {}'.format(current_step), end='')
 
-            action = env.action_space.sample()
+            action = np.random.choice(env.legal_actions)
             c[action] += 1
             actions.append(action)
-            _, reward, done, info = env.step(action)
+            state, reward, done, info = env.step(action)
             cum_profit += info['profit']
             date_times.append(info['timestamp']) 
             profits.append(info['profit'])

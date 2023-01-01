@@ -10,25 +10,19 @@ class Decisions(enum.Enum):
     CLOSE = 3
 
 class Ensemble:
-    def __init__(self, folders, name, ensemble_path, alpha, init_balance, commission_percent, use_attention=False, ratio='sharpe'):
-        self.name = name
-        self.alpha = alpha
+    def __init__(self, folders, name, ensemble_path, init_balance, commission_percent, ratio='sharpe'):
         self.folders = folders
         self.commission_percent = commission_percent
         self.weight_path = INIT_PATHES['weight']
         self.result_path = INIT_PATHES['valid']
         self.ensemble_path = ensemble_path
-
-        if use_attention == True:
-            self.message = self.name + '(a)_agent'
-        else:
-            self.message = self.name + '_agent'
-
+        self.message = name + '_agent'
+           
         self.sortino_ratios = self._cal_sortinos(init_balance)
         self.sharpe_ratios = self._cal_sharpes(init_balance)
         self.ratios = self.sharpe_ratios if (ratio == 'sharpe') else self.sortino_ratios
         self.agent_indices, _ = self._get_maximum(self.ratios)
-        self.vote_weights = self._cal_weights()
+        self.vote_weights = np.array(self.sortino_ratios)
 
         ensemble_df = pd.DataFrame(
             np.array([self.sortino_ratios, self.sharpe_ratios, self.vote_weights]), 
@@ -36,7 +30,7 @@ class Ensemble:
             index=['sortino', 'sharpe', 'weight'])
         ensemble_df.to_csv(self.ensemble_path + self.message[:-6] 
             + '_tc' + str(self.commission_percent) 
-            + '_ensemble_weights@alpha_' + str(self.alpha) + '.csv')
+            + '_ensemble_weights.csv')
 
     def _cal_sortinos(self, init_balance):
         ratios = []
@@ -58,16 +52,15 @@ class Ensemble:
 
     def _cal_weights(self):
         weights = []
-        denominator = sum([pow((1 - self.alpha), k) for k in range(self.folders)])
-        for i, ratio in enumerate(self.ratios):
+        for ratio in self.ratios:
             if np.isnan(ratio):
                 weight = 0
             else:
-                weight = ratio * pow((1 - self.alpha), self.folders - (i + 1)) / denominator
+                weight = ratio 
             weights.append(weight)
-        return weights
+        return np.array(weights)
 
-    def _get_maximum_three(self, ratio, num=3):
+    def _get_maximum(self, ratio, num=3):
         ratios = list(zip(range(len(ratio)), ratio))
         ratios.sort(key = lambda x:x[1], reverse=True)
         ratio_dict = dict(ratios[:num])

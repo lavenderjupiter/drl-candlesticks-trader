@@ -2,10 +2,7 @@ from statistics import stdev
 import numpy as np
 import pandas as pd
 import os
-import torch
-import torch.nn as nn
 from collections import deque
-import cv2
 
 
 HYPERPARAMS = {
@@ -76,33 +73,6 @@ def get_funding_rate(fundrate_df, date_time):
     sub_df = fundrate_df.truncate(after=date_time)
     return float(sub_df.iloc[0]['Funding Rate'][:-1])
 
-class OUNoise:
-    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
-        self.mu = mu
-        self.theta = theta
-        self.sigma = max_sigma
-        self.max_sigma = max_sigma
-        self.min_sigma = min_sigma
-        self.decay_period = decay_period
-        self.action_dim  = action_space.n
-        self.low = action_space.low
-        self.high = action_space.high
-        self.reset()
-        
-    def reset(self):
-        self.state = np.ones(self.action_dim) * self.mu
-        
-    def evolve_state(self):
-        x  = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim)
-        self.state = x + dx
-        return self.state
-    
-    def get_action(self, action, t=0):
-        ou_state = self.evolve_state()
-        self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * min(1.0, t / self.decay_period)
-        return np.clip(action + ou_state, self.low, self.high)  
-
 class ExperienceBuffer:
     def __init__(self, capacity):
         self.buffer = deque(maxlen=capacity)
@@ -138,7 +108,6 @@ class Metrics:
         profits = self.returns['profit']
         mu = profits.mean()
         downside = profits.loc[profits < mu].to_numpy()
-        # sigma = np.sqrt(((downside - mu) ** 2).mean())
         sigma = np.sqrt(((downside - mu) ** 2).sum()/(len(profits) - 1))
         return (mu - rf) / sigma
 
@@ -180,28 +149,28 @@ class Metrics:
                 action_coverage[a] = 0
         return action_coverage
 
-    # def action_gain(self):
-    #     length = len(self.returns)
-    #     gain = np.zeros((length, 1))
-    #     actions = self.returns['action']
-    #     profits = self.returns['profit']   
+    def action_gain(self):
+        length = len(self.returns)
+        gain = np.zeros((length, 1))
+        actions = self.returns['action']
+        profits = self.returns['profit']   
 
-    #     action_gain = 0
-    #     current_gain = 0
-    #     for i, a in enumerate(actions):
-    #         gain[i][0] = current_gain
-    #         action_gain += profits[i]
-    #         if a == 'Close':
-    #             current_gain += action_gain
-    #             gain[i][0] = current_gain
-    #             action_gain = 0  
-    #     current_gain += action_gain
-    #     gain[length-1][0] = current_gain
-    #     return gain
-
-
-
-
+        action_gain = 0
+        current_gain = 0
+        for i, a in enumerate(actions):
+            gain[i][0] = current_gain
+            action_gain += profits[i]
+            if a == 'Close':
+                current_gain += action_gain
+                gain[i][0] = current_gain
+                action_gain = 0  
+            elif a == 3:
+                current_gain += action_gain
+                gain[i][0] = current_gain
+                action_gain = 0  
+        current_gain += action_gain
+        gain[length-1][0] = current_gain
+        return gain
 
 
         
