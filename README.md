@@ -11,33 +11,33 @@ Copy the unzipped folder "candlesticks" to folder "images"
 
 ## Directories of folders are
 
--- drl-candlesticks-trader
-   |
-   -- code
-         | 
-         -- libs
-   |
-   -- data
-   |
-   -- images
-           | 
-           -- candlesticks
-   |
-   -- results
-            |
-            -- test
-                  |
-                  -- 2022-06-19
-                  |
-                  -- 2022-08-15
-            |
-            -- tain
-            |
-            -- train
-   |
-   -- runs
-   |
-   -- weights
+-- drl-candlesticks-trader  
+&emsp;|  
+&emsp;-- code  
+&emsp;&emsp;|  
+&emsp;&emsp;-- libs  
+&emsp;|  
+&emsp;-- data  
+&emsp;|  
+&emsp;-- images  
+&emsp;&emsp;|   
+&emsp;&emsp;-- candlesticks  
+&emsp;|  
+&emsp;-- results  
+&emsp;&emsp;|  
+&emsp;&emsp;-- test  
+&emsp;&emsp;&emsp;|  
+&emsp;&emsp;&emsp;-- 2022-06-19  
+&emsp;&emsp;&emsp;|  
+&emsp;&emsp;&emsp;-- 2022-08-15  
+&emsp;&emsp;|  
+&emsp;&emsp;-- train  
+&emsp;&emsp;|  
+&emsp;&emsp;-- valid  
+&emsp;|  
+&emsp;-- runs  
+&emsp;|  
+&emsp;-- weights  
 
 ## Run Example
 
