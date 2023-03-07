@@ -243,7 +243,6 @@ class ActorPPO(nn.Module):
                 nn.Linear(256, self.n_actions),
             )  
 
-        self.log_std = nn.Parameter(torch.ones(1, self.n_actions) * std)
 
     def forward(self, x, current_account, action_mask):
         if self.raw_data == 'None':
@@ -254,15 +253,10 @@ class ActorPPO(nn.Module):
         else:
             out = torch.cat([x, current_account], 1)
 
-        if self.continuous: # legal_actions masking is not applied
-            mu = self.actor(out)
-            std = self.log_std.exp().expand_as(mu)
-            dist = Normal(mu, std)
-        else:
-            output = self.actor(out)
-            output[action_mask == 0] = -float('inf')
-            prob = F.softmax(output, dim=-1)#.squeeze(0)
-            dist = Categorical(prob)
+        output = self.actor(out)
+        output[action_mask == 0] = -float('inf')
+        prob = F.softmax(output, dim=-1)#.squeeze(0)
+        dist = Categorical(prob)
         return dist
 
 class CriticPPO(nn.Module):
